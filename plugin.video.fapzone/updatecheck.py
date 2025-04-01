@@ -1,11 +1,49 @@
-# Python code obfuscated by www.development-tools.net 
- 
+from kodi_six import xbmc, xbmcaddon, xbmcgui
+import sys
+import re
+import requests
+dialog = xbmcgui.Dialog()
+AddonTitle = '[COLOR red]FapZone 18+ Only[/COLOR]'
+addon_id = 'plugin.video.fapzone'
+selfAddon = xbmcaddon.Addon(id=addon_id)
 
-import base64, codecs
-magic = 'ZnJvbSBrb2RpX3NpeCBpbXBvcnQgeGJtYywgeGJtY2FkZG9uLCB4Ym1jZ3VpDQppbXBvcnQgc3lzDQppbXBvcnQgcmUNCmltcG9ydCByZXF1ZXN0cw0KZGlhbG9nID0geGJtY2d1aS5EaWFsb2coKQ0KQWRkb25UaXRsZSA9ICdbQ09MT1IgcmVkXUZhcFpvbmUgMTgrIE9ubHlbL0NPTE9SXScNCmFkZG9uX2lkICAgICAgICAgICAgPSAncGx1Z2luLnZpZGVvLmZhcHpvbmUnDQpzZWxmQWRkb24gICAgICAgICAgID0geGJtY2FkZG9uLkFkZG9uKGlkPWFkZG9uX2lkKQ0KZGVmIGNoZWNrdXBkYXRlcygpOg0KCXBpbiA9IHNlbGZBZGRvbi5nZXRTZXR0aW5nKCdwaW4nKQ0KCWlmIHBpbiA9PSAnJzogcGluID0gJ0VYUElSRUQnDQoJaWYgcGluID09ICdFWFBJUkVEJzoNCgkJc2VsZkFkZG9'
-love = 'hYaAyqSAyqUEcozpbW3OcoaImMJDaYPqTLJkmMFpcQDbWPJEcLJkiMl5inluOMTEioyEcqTkyYPWoD09ZG1VtpTyhn11oDy1BMKptH2y0MFjtGx8tGH9FEFODG1NtIIOGVFODoTIup2HtqzymnKDtJ0ACGR9FVTkcoJIqnUE0pUZ6Yl9jnJ5mrKA0MJ0hL28hqJgoD09ZG1VtpTyhn10tqT8tM2IhMKWuqTHtLJ4tDJAwMKAmVSEin2IhVRMipvOoD09ZG1VtoTygMI1TLKOno25yJ0ACGR9FVUOcozgqVUEbMJ4tMJ50MKVtnKDtLJM0MKVtL2kcL2gcozpto2goY0WqJl9QG0kCHy0vXD0XPDymqUWcozptCFpaQDbWPJgyrJWiLKWxVQ0trTWgLl5YMKyvo2SlMPumqUWcozpfVPqoD09ZG1VtpzIxKIOfMJSmMFOSoaEypvODnJ4tE2IhMKWuqTIxVRMlo20tI2Ivp2y0MFuQLKAyVSAyoaAcqTy2MF'
-god = 'lbL0NPTE9SXScpDQoJCWtleWJvYXJkLmRvTW9kYWwoKQ0KCQlpZiBrZXlib2FyZC5pc0NvbmZpcm1lZCgpOg0KCQkJc3RyaW5nID0ga2V5Ym9hcmQuZ2V0VGV4dCgpDQoJCQlpZiBsZW4oc3RyaW5nKT4xOg0KCQkJCXRlcm0gPSBzdHJpbmcudGl0bGUoKQ0KCQkJCXNlbGZBZGRvbi5zZXRTZXR0aW5nKCdwaW4nLHRlcm0pDQoJCQkJY2hlY2t1cGRhdGVzKCkNCgkJCWVsc2U6IHF1aXQoKQ0KCQllbHNlOg0KCQkJcXVpdCgpDQoJaWYgbm90ICdFWFBJUkVEJyBpbiBwaW46DQoJCXBpbnVybGNoZWNrID0gKCdodHRwczovL3BpbnN5c3RlbS5jby51ay9zZXJ2aWNlLnBocD9jb2RlPSVzJnBsdWdpbj1SblZqYTFsdmRTRScgJSBwaW4pDQoJCWxpbmsgPSByZXF1ZXN0cy5nZXQocGludXJsY'
-destiny = '2uyL2fcYaEyrUDAPtxWnJLtoTIhXTkcozfcVQj9ZvOipvNaHTyhVRI4pTylMJDaVTyhVTkcozf6QDbWPDymMJkzDJExo24hp2I0H2I0qTyhMltapTyhWljaEIuDFIWSEPpcQDbWPDywnTIwn3IjMTS0MKZbXD0XPDyyoUAyBt0XPDxWpzIanKA0MKWjnJ4tCFOmMJkzDJExo24hM2I0H2I0qTyhMltapTyhqKAyMPpcQDbWPDycMvOlMJqcp3EypaOcovN9CFNaEzSfp2HaBt0XPDxWPKElrGbAPtxWPDxWpzIkqJImqUZhM2I0XPqbqUEjpmbiY3OcoaA5p3EyoF5wol51nl9wnTIwn2IlYaObpQ9wo2EyCGx5BGx5WaOfqJqcow1TLKOno25yWlxhqTI4qN0XPDxWPDymMJkzDJExo24hp2I0H2I0qTyhMltapTyhqKAyMPpfW1ElqJHaXD0XPDxWPJI4L2IjqQbtpTSmpj0XPDxWMJkmMGbtpTSmpj=='
-joy = '\x72\x6f\x74\x31\x33'
-trust = eval('\x6d\x61\x67\x69\x63') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x6c\x6f\x76\x65\x2c\x20\x6a\x6f\x79\x29') + eval('\x67\x6f\x64') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x64\x65\x73\x74\x69\x6e\x79\x2c\x20\x6a\x6f\x79\x29')
-eval(compile(base64.b64decode(eval('\x74\x72\x75\x73\x74')),'<string>','exec'))
+
+def checkupdates():
+    pin = selfAddon.getSetting('pin')
+    if pin == '':
+        pin = 'EXPIRED'
+    if pin == 'EXPIRED':
+        selfAddon.setSetting('pinused', 'False')
+        dialog.ok(AddonTitle, "[COLOR pink][B]New Site, NO MORE POP UPS! Please visit [COLOR lime]https://pinsystem.co.uk[COLOR pink] to generate an Access Token For [COLOR lime]FapZone[COLOR pink] then enter it after clicking ok[/B][/COLOR]")
+        string = ''
+        keyboard = xbmc.Keyboard(
+            string, '[COLOR red]Please Enter Pin Generated From Website(Case Sensitive)[/COLOR]')
+        keyboard.doModal()
+        if keyboard.isConfirmed():
+            string = keyboard.getText()
+            if len(string) > 1:
+                term = string.title()
+                selfAddon.setSetting('pin', term)
+                checkupdates()
+            else:
+                quit()
+        else:
+            quit()
+    if not 'EXPIRED' in pin:
+        pinurlcheck = (
+            'https://pinsystem.co.uk/service.php?code=%s&plugin=RnVja1lvdSE' % pin)
+        link = requests.get(pinurlcheck).text
+        if len(link) <= 2 or 'Pin Expired' in link:
+            selfAddon.setSetting('pin', 'EXPIRED')
+            checkupdates()
+        else:
+            registerpin = selfAddon.getSetting('pinused')
+            if registerpin == 'False':
+                try:
+                    requests.get(
+                        'https://pinsystem.co.uk/checker.php?code=99999&plugin=FapZone').text
+                    selfAddon.setSetting('pinused', 'True')
+                except:
+                    pass
+            else:
+                pass

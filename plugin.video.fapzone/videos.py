@@ -1,11 +1,309 @@
-# Python code obfuscated by www.development-tools.net 
- 
+#############################################################
+#################### START ADDON IMPORTS ####################
+from kodi_six import xbmc, xbmcaddon, xbmcplugin, xbmcgui, xbmcvfs
+from six.moves.urllib.parse import parse_qs, quote_plus, urlparse, parse_qsl
+from six import PY2
+import os
+import re
+import sys
+# import Main
+import requests
+import pyxbmct
+from bs4 import BeautifulSoup
+dialog = xbmcgui.Dialog()
+translatePath = xbmc.translatePath if PY2 else xbmcvfs.translatePath
+#############################################################
+#################### SET ADDON ID ###########################
+_addon_id_ = 'plugin.video.fapzone'
+_self_ = xbmcaddon.Addon(id=_addon_id_)
+base_domain = 'https://eporner.com'
+ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.121 Safari/537.36'
+headers = {'User-Agent': ua}
+#############################################################
+#################### SET ADDON THEME DIRECTORY ##############
+_theme_ = _self_.getSetting('Theme')
+_images_ = '/resources/' + _theme_
+#############################################################
+#################### SET ADDON THEME IMAGES #################
+Background_Image = translatePath(os.path.join(
+    'special://home/addons/' + _addon_id_ + _images_, 'BG2.jpg'))
+# Background_Logo	= translatePath(os.path.join('special://home/addons/' + _addon_id_ + _images_, 'model.gif'))
+# Background_Logo1	= translatePath(os.path.join('special://home/addons/' + _addon_id_ + _images_, 'welcome.gif'))
+Listbg = translatePath(os.path.join(
+    'special://home/addons/' + _addon_id_ + _images_, 'listbg.png'))
+Addon_Image = translatePath(os.path.join(
+    'special://home/addons/' + _addon_id_ + _images_, 'model.gif'))
+Addon_Icon = translatePath(os.path.join(
+    'special://home/addons/' + _addon_id_ + _images_, 'Addon_Icon.png'))
+# Stripper = translatePath(os.path.join('special://home/addons/' + _addon_id_ + _images_, 'stripper.gif'))
+ButtonbF = translatePath(os.path.join(
+    'special://home/addons/' + _addon_id_ + _images_, 'b2.png'))
+ButtonbNF = translatePath(os.path.join(
+    'special://home/addons/' + _addon_id_ + _images_, 'b1.png'))
+########## Function To Call That Starts The Window ##########
 
-import base64, codecs
-magic = 'IyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0jIyMjIyMjIyMjIyMjIyMjIyMjIyBTVEFSVCBBRERPTiBJTVBPUlRTICMjIyMjIyMjIyMjIyMjIyMjIyMjDWZyb20ga29kaV9zaXggaW1wb3J0IHhibWMsIHhibWNhZGRvbiwgeGJtY3BsdWdpbiwgeGJtY2d1aSwgeGJtY3Zmcw1mcm9tIHNpeC5tb3Zlcy51cmxsaWIucGFyc2UgaW1wb3J0IHBhcnNlX3FzLCBxdW90ZV9wbHVzLCB1cmxwYXJzZSwgcGFyc2VfcXNsDWZyb20gc2l4IGltcG9ydCBQWTINaW1wb3J0IG9zDWltcG9ydCByZQ1pbXBvcnQgc3lzDSNpbXBvcnQgTWFpbg1pbXBvcnQgcmVxdWVzdHMNaW1wb3J0IHB5eGJtY3QNZnJvbSBiczQgaW1wb3J0IEJlYXV0aWZ1bFNvdXANZGlhbG9nID0geGJtY2d1aS5EaWFsb2coKQ10cmFuc2xhdGVQYXRoID0geGJtYy50cmFuc2xhdGVQYXRoIGlmIFBZMiBlbHNlIHhibWN2ZnMudHJhbnNsYXRlUGF0aA0jIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDSMjIyMjIyMjIyMjIyMjIyMjIyMjIFNFVCBBRERPTiBJRCAjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMNX2FkZG9uX2lkXwk9ICdwbHVnaW4udmlkZW8uZmFwem9uZScNX3NlbGZfCQkJPSB4Ym1jYWRkb24uQWRkb24oaWQ9X2FkZG9uX2lkXykNYmFzZV9kb21haW4gID0gJ2h0dHBzOi8vZXBvcm5lci5jb20nDXVhID0gJ01vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQpIEFwcGxlV2ViS2l0LzUzNy4zNiAoS0hUTUwsIGxpa2UgR2Vja28pIENocm9tZS83Mi4wLjM2MjYuMTIxIFNhZmFyaS81MzcuMzYnDWhlYWRlcnMgPSB7J1VzZXItQWdlbnQnOiB1YX0NIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0jIyMjIyMjIyMjIyMjIyMjIyMjIyBTRVQgQURET04gVEhFTUUgRElSRUNUT1JZICMjIyMjIyMjIyMjIyMjDV90aGVtZV8JCQk9IF9zZWxmXy5nZXRTZXR0aW5nKCdUaGVtZScpDV9pbWFnZXNfCQk9ICcvcmVzb3VyY2VzLycgKyBfdGhlbWVfCQ0jIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjDSMjIyMjIyMjIyMjIyMjIyMjIyMjIFNFVCBBRERPTiBUSEVNRSBJTUFHRVMgIyMjIyMjIyMjIyMjIyMjIyMNQmFja2dyb3VuZF9JbWFnZQk9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ0JHMi5qcGcnKSkNI0JhY2tncm91bmRfTG9nbwk9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ21vZGVsLmdpZicpKQ0jQmFja2dyb3VuZF9Mb2dvMQk9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ3dlbGNvbWUuZ2lmJykpDUxpc3RiZyA9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ2xpc3RiZy5wbmcnKSkNQWRkb25fSW1hZ2UgPSB0cmFuc2xhdGVQYXRoKG9zLnBhdGguam9pbignc3BlY2lhbDovL2hvbWUvYWRkb25zLycgKyBfYWRkb25faWRfICsgX2ltYWdlc18sICdtb2RlbC5naWYnKSkNQWRkb25fSWNvbiA9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ0FkZG9uX0ljb24ucG5nJykpDSNTdHJpcHBlciA9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ3N0cmlwcGVyLmdpZicpKQ1CdXR0b25iRiA9IHRyYW5zbGF0ZVBhdGgob3MucGF0aC5qb2luKCdzcGVjaWFsOi8vaG9tZS9hZGRvbnMvJyArIF9hZGRvbl9pZF8gKyBfaW1hZ2VzXywgJ2IyLnBuZycpKQ1CdXR0b25iTkYgPSB0cmFuc2xhdGVQYXRoKG9zLnBhdGguam9pbignc3BlY2lhbDovL2hvbWUvYWRkb25zLycgKyBfYWRkb25faWRfICsgX2ltYWdlc18sICdiMS5wbmcnKSkNIyMjIyMjIyMjIyBGdW5jdGlvbiBUbyBDYWxsIFRoYXQgU3RhcnRzIFRoZSBXaW5kb3cgIyMjIyMjIyMjIw1kZWYgdmlkZW93aW5kb3codGEpOg0gICAgZ2xvYmFsIGRhdGENICAgIGdsb2JhbCBMaXN0DSAgICBkYXRhID0gdGENICAgIHdpbmRvdyA9IHZpZGVvX3dpbmRvdygnZmFwem9uZScpDSAgICB3aW5kb3cuZG9Nb2RhbCgpDSAgICBkZWwgd2luZG93DWRlZiBDTEVBTlVQKHRleHQpOg0gICAgdGV4dCA9IHN0cih0ZXh0KQ0gICAgdGV4dCA9IHRleHQucmVwbGFjZSgnXFxyJywnJykNICAgIHRleHQgPSB0ZXh0LnJlcGxhY2UoJ1xcbicsJycpDSAgICB0ZXh0ID0gdGV4dC5yZXBsYWNlKCdcXHQnLCcnKQ0gICAgdGV4d'
-love = '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'
-god = '1lZGlhX0xpbmsgPSBNZWRpYV9MaW5rLnJlcGxhY2UoJ05FWFQ6JywnJykNCQkjIGdsb2JhbCBNZWRpYV9UaXRsZQ0JCSMgZ2xvYmFsIE1lZGlhX0xpbmsNCQkjIGdsb2JhbCBJdGVtX1RpdGxlDQkJIyBnbG9iYWwgSXRlbV9MaW5rDQkJIyBnbG9iYWwgSXRlbV9EZXNjDQkJIyBnbG9iYWwgSXRlbV9JY29uDQkJSXRlbV9UaXRsZSA9ICBbXQ0JCUl0ZW1fTGluayAgPSAgW10NCQlJdGVtX0Rlc2MgID0gIFtdDQkJSXRlbV9JY29uICA9ICBbXQ0JCXNlbGYuTGlzdC5yZXNldCgpDQkJc2VsZi5MaXN0LnNldFZpc2libGUoVHJ1ZSkNCQl0aXRsZSA9ICdGYXBab25lJw0JCXRpdGxlID0gdGl0bGUudXBwZXIoKQ0JCUl0ZW1fVGl0bGUuYXBwZW5kKCdbQ09MT1IgZ29sZF1NYWluICcgKyB0aXRsZSArICcgTGlzdFsvQ09MT1JdJykNCQlJdGVtX0xpbmsuYXBwZW5kKCcnKQ0JCUl0ZW1fRGVzYy5hcHBlbmQoJycpDQkJSXRlbV9JY29uLmFwcGVuZChBZGRvbl9JbWFnZSkNCQlzZWxmLkxpc3QuYWRkSXRlbSgnW0NPTE9SIHllbGxvd10nICsgdGl0bGUgKyAnIExpc3RbL0NPTE9SXScpDQkJc2VsZi50ZXh0Ym94LnNldFRleHQoJycpDQkJc2VsZi5TaG93X0xvZ28uc2V0SW1hZ2UoQWRkb25fSW1hZ2UpDQkJYyA9IHJlcXVlc3RzLmdldChNZWRpYV9MaW5rLGhlYWRlcnM9aGVhZGVycykudGV4dA0JCXNvdXAgPSBCZWF1dGlmdWxTb3VwKGMsICdodG1sNWxpYicpDQkJY29udGVudCA9IHNvdXAuZmluZF9hbGwoJ2RpdicsIGNsYXNzXz17J21iJ30pDQkJZm9yIGl0ZW1zIGluIGNvbnRlbnQ6DQkJCXRyeToNCQkJCXRpdGxlID0gaXRlbXMuaW1nWydhbHQnXQ0JCQkJdXJsID0gaXRlbXMuYVsnaHJlZiddDQkJCQlpZiBub3QgYmFzZV9kb21haW4gaW4gdXJsOiB1cmwgPSBiYXNlX2RvbWFpbit1cmwNCQkJCXRyeTogaWNvbiA9IGl0ZW1zLmltZ1snZGF0YS1zcmMnXQ0JCQkJZXhjZXB0OiBpY29uID0gaXRlbXMuaW1nWydzcmMnXQ0JCQkJSXRlbV9UaXRsZS5hcHBlbmQodGl0bGUpDQkJCQlJdGVtX0xpbmsuYXBwZW5kKHVybCkNCQkJCUl0ZW1fSWNvbi5hcHBlbmQoaWNvbikNCQkJCXNlbGYuTGlzdC5hZGRJdGVtKHRpdGxlKQ0JCQkJSXRlbV9EZXNjLmFwcGVuZCgnJykNCQkJZXhjZXB0OiBwYXNzDQkJdHJ5Og0JCQlucCA9IHJlLmNvbXBpbGUgKCcnJzxsaW5rXHMrcmVsPVsnIl1uZXh0WyciXVxzK2hyZWY9WyciXSguKj8pWyciXScnJykuZmluZGFsbChjKVswXQ0JCQluZXh0cGFnZSA9ICdORVhUOicgKyBucA0JCQlucGljb24gPSAnaHR0cHM6Ly9pLmltZ3VyLmNvbS8zZU5vWTBwLnBuZycNCQkJbnB0aXRsZSA9ICdbQ09MT1IgcmVkXU5leHQgUGFnZVsvQ09MT1JdJw0JCQlJdGVtX1RpdGxlLmFwcGVuZChucHRpdGxlKQ0JCQlJdGVtX0xpbmsuYXBwZW5kKG5leHRwYWdlKQ0JCQlJdGVtX0ljb24uYXBwZW5kKG5waWNvbikNCQkJc2VsZi5MaXN0LmFkZEl0ZW0obnB0aXRsZSkNCQkJSXRlbV9EZXNjLmFwcGVuZCgnJykNCQlleGNlcHQ6cGFzcw0JZWxzZToNCQkjZ2xvYmFsIE1lZGlhX1RpdGxlDQkJI2dsb2JhbCBNZWRpYV9MaW5rDQkJIyBnbG9iYWwgSXRlbV9UaXRsZQ0JCSMgZ2xvYmFsIEl0ZW1fTGluaw0JCSMgZ2xvYmFsIEl0ZW1fRGVzYw0JCSMgZ2xvYmFsIEl0ZW1fSWNvbg0JCXNlbGYuTGlzdC5yZXNldCgpDQkJc2VsZi5MaXN0LnNldFZpc2libGUoVHJ1ZSkNCQlJdGVtX1RpdGxlID0gIFtdDQkJSXRlbV9MaW5rICA9ICBbXQ0JCUl0ZW1fRGVzYyAgPSAgW10NCQlJdGVtX0ljb24gID0gIFtdDQkJYyA9IHJlcXVlc3RzLmdldChNZWRpYV9MaW5rLGhlYWRlcnM9aGVhZGVycykudGV4dA0JCXNvdXAgPSBCZWF1dGlmdWxTb3VwKGMsICdodG1sNWxpYicpDQkJciA9IHNvdXAuZmluZCgnZGl2JywgY2xhc3NfPXsnZGxvYWRkaXZjb2wnfSkNCQlmb3IgbGlua3MgaW4gci5maW5kX2FsbCgnYScpOg0JCQlsaW5rID0gbGlua3NbJ2hyZWYnXQ0JCQl0aXRsZSA9IGxpbmtzLnRleHQNCQkJdGl0bGUgPSB0aXRsZS5yZXBsYWNlKCdEb3dubG9hZCcsJycpDQkJCXVybCA9ICdQTEFZOmh0dHBzOi8vd3d3LmVwb3JuZXIuY29tJyArIGxpbmsNCQkJI3RpdGxlID0gJ1BsYXkgVmlkZW8gYXQgUXVhbGl0eSA6ICcgKyBxdWFsaXR5DQkJCUl0ZW1fVGl0bGUuYXBwZW5kKHRpdGxlKQ0JCQlJdGVtX0xpbmsuYXBwZW5kKHVybCkNCQkJSXRlbV9JY29uLmFwcGVuZChNZWRpYV9JY29uKQ0JCQlzZWxmLkxpc3QuYWRkSXRlbSh0aXRsZSkNCQkJSXRlbV9EZXNjLmFwcGVuZCgnJykNIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIw0jIyMjIyMjIyMgQ2xhc3MgQ29udGFpbmluZyB0aGUgR1VpIENvZGUgLyBDb250cm9scyAjIyMjIyMjIyMjDWNsYXNzIHZpZGVvX3dpbmRvdyhweXhibWN0LkFkZG9uRnVsbFdpbmRvdyk6DQl4Ym1jLmV4ZWN1dGVidWlsdGluKCJEaWFsb2cuQ2xvc2UoYnVzeWRpYWxvZykiKQ0JZGVmIF9faW5pdF9fKHNlbGYsIHRpdGxlPSdmYXB6b25lJyk6DQkJc3VwZXIodmlkZW9'
-destiny = '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'
-joy = '\x72\x6f\x74\x31\x33'
-trust = eval('\x6d\x61\x67\x69\x63') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x6c\x6f\x76\x65\x2c\x20\x6a\x6f\x79\x29') + eval('\x67\x6f\x64') + eval('\x63\x6f\x64\x65\x63\x73\x2e\x64\x65\x63\x6f\x64\x65\x28\x64\x65\x73\x74\x69\x6e\x79\x2c\x20\x6a\x6f\x79\x29')
-eval(compile(base64.b64decode(eval('\x74\x72\x75\x73\x74')),'<string>','exec'))
+
+def videowindow(ta):
+    global data
+    global List
+    data = ta
+    window = video_window('fapzone')
+    window.doModal()
+    del window
+
+
+def CLEANUP(text):
+    text = str(text)
+    text = text.replace('\\r', '')
+    text = text.replace('\\n', '')
+    text = text.replace('\\t', '')
+    text = text.replace('\\', '')
+    text = text.replace('<br />', '\n')
+    text = text.replace('<hr />', '')
+    text = text.replace('&#039;', "'")
+    text = text.replace('&#39;', "'")
+    text = text.replace('&quot;', '"')
+    text = text.replace('&rsquo;', "'")
+    text = text.replace('&amp;', "&")
+    text = text.replace('&#8211;', "&")
+    text = text.replace('&#8217;', "'")
+    text = text.replace('&#038;', "&")
+    text = text.replace('&#8211;', "-")
+    text = text.lstrip(' ')
+    text = text.lstrip('	')
+    return text
+
+
+def passed(self, title):
+    # global Media_Title
+    # global Media_Link
+    global Item_Title
+    global Item_Link
+    global Item_Desc
+    global Item_Icon
+    Item_Title = []
+    Item_Link = []
+    Item_Desc = []
+    Item_Icon = []
+    title = title.upper()
+    Item_Title.append('[COLOR gold]Main ' + title + ' List[/COLOR]')
+    Item_Link.append('')
+    Item_Desc.append('')
+    Item_Icon.append(Addon_Image)
+    self.List.addItem('[COLOR yellow]' + title + ' List[/COLOR]')
+    self.textbox.setText('')
+    self.Show_Logo.setImage(Addon_Image)
+    c = requests.get(data, headers=headers).text
+    soup = BeautifulSoup(c, 'html5lib')
+    content = soup.find_all('div', class_={'mb'})
+    for items in content:
+        try:
+            title = items.img['alt']
+            url = items.a['href']
+            if not base_domain in url:
+                url = base_domain+url
+            try:
+                icon = items.img['data-src']
+            except:
+                icon = items.img['src']
+            Item_Title.append(title)
+            Item_Link.append(url)
+            Item_Icon.append(icon)
+            self.List.addItem(title)
+            Item_Desc.append('')
+        except:
+            pass
+    try:
+        np = re.compile(
+            '''<link\s+rel=['"]next['"]\s+href=['"](.*?)['"]''').findall(c)[0]
+        nextpage = 'NEXT:' + np
+        npicon = 'https://i.imgur.com/3eNoY0p.png'
+        nptitle = '[COLOR red]Next Page[/COLOR]'
+        Item_Title.append(nptitle)
+        Item_Link.append(nextpage)
+        Item_Icon.append(npicon)
+        self.List.addItem(nptitle)
+        Item_Desc.append('')
+    except:
+        pass
+
+
+def List_Selected(self):
+
+    # dialog.ok("Link",str(Media_Link))
+    global Media_Link
+    global Media_Title
+    global Item_Title
+    global Item_Link
+    global Item_Desc
+    global Item_Icon
+    # dialog.ok("LS SELCT",str(Media_Link))
+    if 'PLAY:' in Media_Link:
+        # dateimport.CHECKDIRS()
+        # dateimport.DateCheck()
+        # liz = xbmcgui.ListItem(name)
+        Media_Link = Media_Link.replace('PLAY:', '')
+        liz = xbmcgui.ListItem(Media_Title)
+        liz.setArt({"thumb": Media_Icon})
+        liz.setInfo('video', {'Plot': Media_Title})
+        liz.setPath(Media_Link)
+        # Show_List  =  xbmcgui.ListItem(Media_Title)
+        xbmc.Player().play(Media_Link, liz, False)
+    elif 'NEXT:' in Media_Link:
+        Media_Link = Media_Link.replace('NEXT:', '')
+        # global Media_Title
+        # global Media_Link
+        # global Item_Title
+        # global Item_Link
+        # global Item_Desc
+        # global Item_Icon
+        Item_Title = []
+        Item_Link = []
+        Item_Desc = []
+        Item_Icon = []
+        self.List.reset()
+        self.List.setVisible(True)
+        title = 'FapZone'
+        title = title.upper()
+        Item_Title.append('[COLOR gold]Main ' + title + ' List[/COLOR]')
+        Item_Link.append('')
+        Item_Desc.append('')
+        Item_Icon.append(Addon_Image)
+        self.List.addItem('[COLOR yellow]' + title + ' List[/COLOR]')
+        self.textbox.setText('')
+        self.Show_Logo.setImage(Addon_Image)
+        c = requests.get(Media_Link, headers=headers).text
+        soup = BeautifulSoup(c, 'html5lib')
+        content = soup.find_all('div', class_={'mb'})
+        for items in content:
+            try:
+                title = items.img['alt']
+                url = items.a['href']
+                if not base_domain in url:
+                    url = base_domain+url
+                try:
+                    icon = items.img['data-src']
+                except:
+                    icon = items.img['src']
+                Item_Title.append(title)
+                Item_Link.append(url)
+                Item_Icon.append(icon)
+                self.List.addItem(title)
+                Item_Desc.append('')
+            except:
+                pass
+        try:
+            np = re.compile(
+                '''<link\s+rel=['"]next['"]\s+href=['"](.*?)['"]''').findall(c)[0]
+            nextpage = 'NEXT:' + np
+            npicon = 'https://i.imgur.com/3eNoY0p.png'
+            nptitle = '[COLOR red]Next Page[/COLOR]'
+            Item_Title.append(nptitle)
+            Item_Link.append(nextpage)
+            Item_Icon.append(npicon)
+            self.List.addItem(nptitle)
+            Item_Desc.append('')
+        except:
+            pass
+    else:
+        # global Media_Title
+        # global Media_Link
+        # global Item_Title
+        # global Item_Link
+        # global Item_Desc
+        # global Item_Icon
+        self.List.reset()
+        self.List.setVisible(True)
+        Item_Title = []
+        Item_Link = []
+        Item_Desc = []
+        Item_Icon = []
+        c = requests.get(Media_Link, headers=headers).text
+        soup = BeautifulSoup(c, 'html5lib')
+        r = soup.find('div', class_={'dloaddivcol'})
+        for links in r.find_all('a'):
+            link = links['href']
+            title = links.text
+            title = title.replace('Download', '')
+            url = 'PLAY:https://www.eporner.com' + link
+            # title = 'Play Video at Quality : ' + quality
+            Item_Title.append(title)
+            Item_Link.append(url)
+            Item_Icon.append(Media_Icon)
+            self.List.addItem(title)
+            Item_Desc.append('')
+#############################################################
+######### Class Containing the GUi Code / Controls ##########
+
+
+class video_window(pyxbmct.AddonFullWindow):
+    xbmc.executebuiltin("Dialog.Close(busydialog)")
+
+    def __init__(self, title='fapzone'):
+        super(video_window, self).__init__(title)
+        self.setGeometry(1280, 720, 100, 50)
+        Background = pyxbmct.Image(Background_Image)
+        self.placeControl(Background, -10, -1, 123, 52)
+        self.set_info_controls()
+        self.set_active_controls()
+        self.set_navigation()
+        self.connect(pyxbmct.ACTION_NAV_BACK, self.close)
+        self.connect(self.List, lambda: List_Selected(self))
+        # self.connect(self.button1, lambda:nflone(self))
+        self.setFocus(self.List)
+        passed(self, title)
+        self.setFocus(self.List)
+
+    def set_info_controls(self):
+        self.Hello = pyxbmct.Label(
+            '', textColor='0xFFFFD700', font='font60', alignment=pyxbmct.ALIGN_CENTER)
+        self.placeControl(self.Hello, -4, 1, 1, 50)
+        self.List = pyxbmct.List(
+            buttonFocusTexture=Listbg, _space=9, _itemTextYOffset=-4, textColor='0xFF013d11')
+        self.placeControl(self.List, 20, 0, 100, 33)
+        self.textbox = pyxbmct.TextBox(textColor='0xFFFFD700')
+        self.placeControl(self.textbox, 95, 18, 30, 30)
+        self.Show_Logo = pyxbmct.Image('')
+        self.placeControl(self.Show_Logo, -6, 41, 36, 8)
+        self.connectEventList(
+            [pyxbmct.ACTION_MOVE_DOWN,
+             pyxbmct.ACTION_MOVE_UP,
+             pyxbmct.ACTION_MOUSE_WHEEL_DOWN,
+             pyxbmct.ACTION_MOUSE_WHEEL_UP,
+             pyxbmct.ACTION_MOUSE_MOVE],
+            self.List_update)
+
+    def set_active_controls(self):
+        pass
+        # self.button11 = pyxbmct.Button('',   noFocusTexture=Addon_Icon, focusTexture=Addon_Icon)
+        # self.placeControl(self.button11, -4, 42,  20, 8)
+        # self.button12 = pyxbmct.Button('',   noFocusTexture=Background_Logo1, focusTexture=Background_Logo1)
+        # self.placeControl(self.button12, -4, 16,  25, 26)
+        # self.button13 = pyxbmct.Button('',   noFocusTexture=Stripper, focusTexture=Stripper)
+        # self.placeControl(self.button13, 0, 1,  106, 13)
+
+    def set_navigation(self):
+        # set the navigation for if user presses Right when eliment if focused
+        pass
+
+    def List_update(self):
+        global Media_Title
+        global Media_Link
+        global Media_Desc
+        global Media_Icon
+        try:
+            if self.getFocus() == self.List:
+                position = self.List.getSelectedPosition()
+                Media_Title = Item_Title[position]
+                Media_Link = Item_Link[position]
+                Media_Desc = Item_Desc[position]
+                self.textbox.setText(Media_Desc)
+                self.textbox.autoScroll(1000, 1000, 1000)
+                if Item_Icon[position] is not None:
+                    Media_Icon = Item_Icon[position]
+                    self.Show_Logo.setImage(Media_Icon)
+                else:
+                    Media_Icon = 'http://via.placeholder.com/300x220/13b7ff/FFFFFF?text=' + Media_Title
+                    self.Show_Logo.setImage(Media_Icon)
+        except (RuntimeError, SystemError):
+            pass
